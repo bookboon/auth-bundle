@@ -41,7 +41,8 @@ class BookboonAuthExtension extends Extension
             ->setPublic(true)
             ->setBindings([
                 '$rejectionRoute' => $config['rejection_route'],
-                '$acceptanceRoute' => $config['acceptance_route']
+                '$acceptanceRoute' => $config['acceptance_route'],
+                '$authenticationRoute' => $config['authentication_route']
             ])
             ->setAutowired(true);
 

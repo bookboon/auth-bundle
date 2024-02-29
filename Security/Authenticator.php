@@ -35,12 +35,13 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
         protected EventDispatcherInterface $_dispatcher,
         protected string $rejectionRoute = '',
         protected string $acceptanceRoute = '',
+        protected string $authenticationRoute = 'auth_check'
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        return $request->attributes->get('_route') == 'auth_check';
+        return $request->attributes->get('_route') == $this->authenticationRoute;
     }
 
     public function authenticate(Request $request): Passport
@@ -133,6 +134,6 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
             throw new RuntimeException("retries have been exhausted");
         }
 
-        return $this->_clientRegistry->getClient("auth-service")->redirect([], $options);
+        return $this->_clientRegistry->getClient(self::AUTH_PROVIDER)->redirect([], $options);
     }
 }
