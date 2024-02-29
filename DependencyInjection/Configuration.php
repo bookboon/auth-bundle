@@ -16,6 +16,7 @@ class Configuration implements ConfigurationInterface
             ->children()
             ->scalarNode('rejection_route')->isRequired()->end()
             ->scalarNode('acceptance_route')->isRequired()->end()
+            ->scalarNode('authentication_route')->defaultValue('auth_check')->isRequired()->end()
             ->booleanNode('handle_token_expire')->defaultTrue()->end()
             ;
 
