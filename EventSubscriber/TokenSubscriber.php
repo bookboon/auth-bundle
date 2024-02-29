@@ -2,8 +2,8 @@
 
 namespace Bookboon\AuthBundle\EventSubscriber;
 
-use Bookboon\AuthBundle\Event\ClearTokenEvent;
 use Bookboon\AuthBundle\Event\RenewTokenEvent;
+use Bookboon\AuthBundle\Security\TokenGetterInterface;
 use Bookboon\AuthBundle\Service\TokenService;
 use Bookboon\JsonLDClient\Client\JsonLDClient;
 use Bookboon\JsonLDClient\Client\JsonLDResponseException;
@@ -28,6 +28,7 @@ class TokenSubscriber implements EventSubscriberInterface
         private TokenService $service,
         private SerializerInterface $serializer,
         private EventDispatcherInterface $dispatcher,
+        private TokenGetterInterface $tokenGetter
     ) {
     }
 
@@ -51,10 +52,7 @@ class TokenSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        $token = $this->service->getUser()?->getAccessToken();
-        if ($token) {
-            $this->jsonld->setAccessToken($token);
-        }
+        $this->jsonld->setAccessToken($this->tokenGetter->getAccessToken());
     }
 
     public function onKernelException(ExceptionEvent $event): void
@@ -69,6 +67,12 @@ class TokenSubscriber implements EventSubscriberInterface
             ErrorCodes::isTokenError($apiErrorResp->getErrors()[0]->getCode())
         ) {
             $renewEvent = $this->dispatcher->dispatch(new RenewTokenEvent());
+
+            $this->tokenGetter->setAccessToken($renewEvent->getAccessToken());
+            $this->jsonld->setAccessToken($renewEvent->getAccessToken());
+            if ($renewEvent->getAccessToken() === null) {
+                $this->tokenGetter->invalidate();
+            }
 
             // after clearing token redirect user to restart auth
             $response = new RedirectResponse($event->getRequest()->getUri());
@@ -92,26 +96,17 @@ class TokenSubscriber implements EventSubscriberInterface
 
     public function onRenewToken(RenewTokenEvent $event): void
     {
-        $oldToken = null;
-        $newToken = null;
+        $oldToken = $this->tokenGetter->getAccessToken();
 
-        // This will force a re-auth, but is essentially only required for SSO
-        if (null !== $user = $this->service->getUser()) {
-            $oldToken = $user->getAccessToken();
+        if ($oldToken) {
             $newToken = $this->service->renewToken($oldToken);
             $event->setAccessToken($newToken);
 
             if ($newToken === null) {
-                // See Subscriber/JsonLDSubscriber.php for how this is handled
+                // Token could not be renewed
                 $event->enableFullReload();
-            } else {
-                $user->setAccessToken($newToken);
-                $this->jsonld->setAccessToken($newToken);
             }
         }
-
-        // For custom application implementations, such as shared token, send event that token is clearly invalid
-        $this->dispatcher->dispatch(new ClearTokenEvent($oldToken, $newToken));
     }
 
     private function getErrorsFromThrowable(Throwable $throwable): ?ApiErrorResponse
