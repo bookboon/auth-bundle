@@ -5,7 +5,9 @@ namespace Bookboon\AuthBundle\DependencyInjection;
 use Bookboon\AuthBundle\EventSubscriber\TokenSubscriber;
 use Bookboon\AuthBundle\Helper\ConfigurationHolder;
 use Bookboon\AuthBundle\Security\Authenticator;
+use Bookboon\AuthBundle\Security\TokenGetterInterface;
 use Bookboon\AuthBundle\Security\UserProvider;
+use Bookboon\AuthBundle\Security\UserTokenGetter;
 use Bookboon\AuthBundle\Service\TokenService;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -30,6 +32,10 @@ class BookboonAuthExtension extends Extension
         }
 
         $config = $this->processConfiguration($holder, $configs);
+
+        $container->register(TokenGetterInterface::class, UserTokenGetter::class)
+            ->setPublic(true)
+            ->setAutowired(true);
 
         $container->register(Authenticator::class)
             ->setPublic(true)
