@@ -4,10 +4,13 @@ namespace Bookboon\AuthBundle\Security;
 
 use Bookboon\AuthBundle\Event\OauthOptionsEvent;
 use Bookboon\AuthBundle\Event\OauthUserEvent;
+use Bookboon\AuthBundle\Grant\TokenExchangeGrant;
 use Bookboon\OauthClient\AuthServiceUser;
 use Bookboon\OauthClient\BookboonResourceOwner;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -133,5 +136,23 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
         }
 
         return $this->_clientRegistry->getClient(self::AUTH_PROVIDER)->redirect([], $options);
+    }
+
+    /**
+     * @param AccessTokenInterface $token
+     * @param string $clientId
+     * @param string[] $scopes
+     * @return AccessTokenInterface
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    public function impersonate(AccessTokenInterface $token, string $clientId, array $scopes): AccessTokenInterface {
+        $client = $this->_clientRegistry->getClient(Authenticator::AUTH_PROVIDER);
+        $provider = $client->getOAuth2Provider();
+        return $provider->getAccessToken(new TokenExchangeGrant(), [
+            'subject_token' => $token->getToken(),
+            'subject_token_type' => 'Bearer',
+            'resource' => "https://bookboon.com/login/api/v1/applications/$clientId",
+            'scope' => implode(' ', $scopes)
+        ]);
     }
 }
