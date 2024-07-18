@@ -3,6 +3,7 @@
 namespace Bookboon\AuthBundle\DependencyInjection;
 
 use Bookboon\AuthBundle\EventSubscriber\TokenSubscriber;
+use Bookboon\AuthBundle\Grant\TokenExchangeGrant;
 use Bookboon\AuthBundle\Helper\ConfigurationHolder;
 use Bookboon\AuthBundle\Security\Authenticator;
 use Bookboon\AuthBundle\Security\TokenGetterInterface;
@@ -50,6 +51,10 @@ class BookboonAuthExtension extends Extension
             ->setAutowired(true);
 
         $container->register(UserProvider::class)
+            ->setAutowired(true);
+
+        $container->register(TokenExchangeGrant::class)
+            ->addTag('league.oauth2_server.authorization_server.grant')
             ->setAutowired(true);
 
         if ($config['handle_token_expire']) {
