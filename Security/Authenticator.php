@@ -109,11 +109,11 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse(
                 [
-                    'status' => Response::HTTP_FORBIDDEN,
+                    'status' => Response::HTTP_UNAUTHORIZED,
                     'message' => 'Unauthorized, needs to revalidate',
                     'command' => 'refresh'
                 ],
-                403
+                Response::HTTP_UNAUTHORIZED,
             );
         }
 
