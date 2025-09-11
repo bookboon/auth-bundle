@@ -5,10 +5,13 @@ namespace Bookboon\AuthBundle\Security;
 use Bookboon\AuthBundle\Event\OauthOptionsEvent;
 use Bookboon\AuthBundle\Event\OauthUserEvent;
 use Bookboon\AuthBundle\Grant\TokenExchangeGrant;
+use Bookboon\AuthBundle\Model\ImpersonationResponse;
 use Bookboon\OauthClient\AuthServiceUser;
 use Bookboon\OauthClient\BookboonResourceOwner;
+use GuzzleHttp\Exception\GuzzleException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use RuntimeException;
@@ -142,17 +145,27 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
      * @param AccessTokenInterface $token
      * @param string $clientId
      * @param string[] $scopes
-     * @return AccessTokenInterface
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @return ImpersonationResponse
+     * @throws IdentityProviderException
+     * @throws GuzzleException
      */
-    public function impersonate(AccessTokenInterface $token, string $clientId, array $scopes): AccessTokenInterface {
+    public function impersonate(AccessTokenInterface $token, string $clientId, array $scopes): ImpersonationResponse {
         $client = $this->_clientRegistry->getClient(Authenticator::AUTH_PROVIDER);
         $provider = $client->getOAuth2Provider();
-        return $provider->getAccessToken(new TokenExchangeGrant(), [
+        $token = $provider->getAccessToken(new TokenExchangeGrant(), [
             'subject_token' => $token->getToken(),
             'subject_token_type' => 'Bearer',
             'resource' => "https://bookboon.com/login/api/v1/applications/$clientId",
             'scope' => implode(' ', $scopes)
         ]);
+
+        if (!$token instanceof AccessToken) {
+            throw new RuntimeException("Impersonation did not return a valid access token");
+        }
+
+        /** @var BookboonResourceOwner $resourceOwner */
+        $resourceOwner = $client->fetchUserFromToken($token);
+
+        return new ImpersonationResponse($token, $resourceOwner);
     }
 }
