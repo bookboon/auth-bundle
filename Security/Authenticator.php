@@ -50,9 +50,18 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
         return $request->attributes->get('_route') == $this->authenticationRoute;
     }
 
+    /**
+     * Returns the OAuth provider name to use for the given request.
+     * Override this method to implement request-based provider selection (e.g., based on hostname).
+     */
+    protected function getAuthProvider(Request $request): string
+    {
+        return self::AUTH_PROVIDER;
+    }
+
     public function authenticate(Request $request): Passport
     {
-        $client = $this->_clientRegistry->getClient(self::AUTH_PROVIDER);
+        $client = $this->_clientRegistry->getClient($this->getAuthProvider($request));
         $accessToken = $this->fetchAccessToken($client);
         /** @var BookboonResourceOwner $resourceOwner */
         $resourceOwner = $client->fetchUserFromToken($accessToken);
@@ -138,7 +147,7 @@ class Authenticator extends OAuth2Authenticator implements AuthenticationEntryPo
             throw new RuntimeException("retries have been exhausted");
         }
 
-        return $this->_clientRegistry->getClient(self::AUTH_PROVIDER)->redirect([], $options);
+        return $this->_clientRegistry->getClient($this->getAuthProvider($request))->redirect([], $options);
     }
 
     /**
