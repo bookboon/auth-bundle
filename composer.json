@@ -21,7 +21,8 @@
         "symfony/cache": "^5.0|^6.0",
         "bookboon/jsonld-client": "^2.6",
         "bookboon/api-models-php": "^1.2",
-        "bookboon/oauth2-client-php": "^4.2"
+        "bookboon/oauth2-client-php": "^4.2",
+        "symfony/security-http": "^5.4.47|^6.4.39"
     },
     "require-dev": {
         "vimeo/psalm": "^4.1",
