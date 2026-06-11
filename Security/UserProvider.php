@@ -38,7 +38,7 @@ class UserProvider implements UserProviderInterface
         return $user;
     }
 
-    public function supportsClass($class): bool
+    public function supportsClass(string $class): bool
     {
         return $class === AuthServiceUser::class || is_subclass_of($class, AuthServiceUser::class);
     }
