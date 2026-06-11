@@ -15,14 +15,14 @@
     ],
     "require": {
         "php": ">=8.0",
-        "symfony/dependency-injection": "^5.0|^6.0",
-        "symfony/http-kernel": "^5.0|^6.0",
-        "symfony/config": "^5.0|^6.0",
-        "symfony/cache": "^5.0|^6.4.39",
+        "symfony/dependency-injection": "^5.0|^6.0|^7.0",
+        "symfony/http-kernel": "^5.0|^6.0|^7.0",
+        "symfony/config": "^5.0|^6.0|^7.0",
+        "symfony/cache": "^5.0|^6.4.39|^7.0",
         "bookboon/jsonld-client": "^2.6",
         "bookboon/api-models-php": "^1.2",
         "bookboon/oauth2-client-php": "^4.2",
-        "symfony/security-http": "^5.4.47|^6.4.40"
+        "symfony/security-http": "^5.4.47|^6.4.40|^7.0"
     },
     "require-dev": {
         "vimeo/psalm": "^4.1",
