@@ -43,6 +43,11 @@ class UserProvider implements UserProviderInterface
         return $class === AuthServiceUser::class || is_subclass_of($class, AuthServiceUser::class);
     }
 
+    public function loadUserByUsername($username): AuthServiceUser
+    {
+        return new AuthServiceUser();
+    }
+
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         throw new RuntimeException('should not be called');
