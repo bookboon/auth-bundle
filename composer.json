@@ -22,6 +22,7 @@
     ],
     "require": {
         "php": ">=8.0",
+        "guzzlehttp/guzzle": "^7.15.2|^8.0.1",
         "symfony/dependency-injection": "^5.0|^6.0|^7.0",
         "symfony/http-kernel": "^5.0|^6.0|^7.0",
         "symfony/config": "^5.0|^6.0|^7.0",
