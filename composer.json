@@ -17,7 +17,7 @@
         {
             "type": "composer",
             "url": "https://bookbooncloud.com/api/v4/group/9/-/packages/composer/",
-            "only": ["internal/*", "bookboon/oauth2-client-php"]
+            "only": ["internal/*"]
         }
     ],
     "require": {
@@ -29,7 +29,7 @@
         "symfony/cache": "^5.0|^6.4.39|^7.0",
         "internal/jsonld-client": "^2.6|^3.0",
         "bookboon/api-models-php": "^1.2",
-        "bookboon/oauth2-client-php": "^5.0.1",
+        "internal/oauth2-client-php": "^5.1",
         "symfony/security-http": "^7.1"
     },
     "require-dev": {
